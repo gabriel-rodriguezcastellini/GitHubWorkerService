@@ -14,6 +14,13 @@ namespace GitHubWorkerService
         {
             while (!stoppingToken.IsCancellationRequested)
             {
+                if (File.Exists(_fileOptions.Path) && File.GetCreationTime(_fileOptions.Path).Date == DateTime.Now.Date)
+                {
+                    await Task.Delay(new TimeSpan(days: 1, 0, 0, 0), stoppingToken);
+
+                    return;
+                }
+
                 if (_logger.IsEnabled(LogLevel.Information))
                 {
                     _logger.LogInformation("Worker running at: {time}", DateTimeOffset.Now);
@@ -22,7 +29,6 @@ namespace GitHubWorkerService
                 GitHubClient github = new(new ProductHeaderValue(_gitHubOptions.Login)) { Credentials = new Credentials(_gitHubOptions.AccessToken) };
                 User user = await github.User.Get(_gitHubOptions.Login);
                 Console.WriteLine(user.Followers + " folks love me!");
-
                 List<string> languages = [];
 
                 foreach (Repository? item in await github.Repository.GetAllForCurrent())
