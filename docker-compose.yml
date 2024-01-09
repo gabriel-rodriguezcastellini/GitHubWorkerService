@@ -1,0 +1,8 @@
+version: '3.4'
+
+services:
+  githubworkerservice:
+    image: ${DOCKER_REGISTRY-}githubworkerservice
+    build:
+      context: .
+      dockerfile: GitHubWorkerService/Dockerfile
