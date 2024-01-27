@@ -29,16 +29,26 @@ namespace GitHubWorkerService
                 GitHubClient github = new(new ProductHeaderValue(_gitHubOptions.Login)) { Credentials = new Credentials(_gitHubOptions.AccessToken) };
                 User user = await github.User.Get(_gitHubOptions.Login);
                 Console.WriteLine(user.Followers + " folks love me!");
-                List<string> languages = [];
+                Dictionary<string, long> languages = [];
 
                 foreach (Repository? item in await github.Repository.GetAllForCurrent())
                 {
-                    languages.AddRange((await github.Repository.GetAllLanguages(item.Id)).Where(language => !languages.Exists(x => x == language.Name)).Select(language => language.Name));
+                    (await github.Repository.GetAllLanguages(item.Id)).ToList().ForEach(x =>
+                    {
+                        if (languages.ContainsKey(x.Name))
+                        {
+                            languages[x.Name] += x.NumberOfBytes;
+                        }
+                        else
+                        {
+                            languages.Add(x.Name, x.NumberOfBytes);
+                        }
+                    });
                 }
 
                 using (FileStream fs = File.Create(_fileOptions.Path, 1024))
                 {
-                    byte[] info = new UTF8Encoding(true).GetBytes(string.Join(Environment.NewLine, languages));
+                    byte[] info = new UTF8Encoding(true).GetBytes(string.Join(Environment.NewLine, languages.OrderByDescending(x => x.Value).Select(x => $"{x.Key} - {x.Value}")));
                     await fs.WriteAsync(info, stoppingToken);
                 }
 
