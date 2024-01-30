@@ -4,4 +4,4 @@
 [![Mark stale issues and pull requests](https://github.com/gabriel-rodriguezcastellini/GitHubWorkerService/actions/workflows/stale.yml/badge.svg)](https://github.com/gabriel-rodriguezcastellini/GitHubWorkerService/actions/workflows/stale.yml)
 
 This project connects you to GitHub later API and creates a file with the list of languages used among your projects including the ones within your organizations.
-The list of languages is ordered by number of bytes written.
+The list of languages is sorted in descending order by number of bytes written.
