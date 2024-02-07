@@ -4,6 +4,6 @@
     {
         public const string File = "File";
 
-        public required string Path { get; set; }
+        public required string FileName { get; set; }
     }
 }

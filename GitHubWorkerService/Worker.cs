@@ -14,7 +14,16 @@ namespace GitHubWorkerService
         {
             while (!stoppingToken.IsCancellationRequested)
             {
-                if (File.Exists(_fileOptions.Path) && File.GetCreationTime(_fileOptions.Path).Date == DateTime.Now.Date)
+                string path = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), "GitHubWorkerService");
+
+                if (!Directory.Exists(path))
+                {
+                    _ = Directory.CreateDirectory(path);
+                }
+
+                path = Path.Combine(path, _fileOptions.FileName);
+
+                if (File.Exists(path) && File.GetCreationTime(path).Date == DateTime.Now.Date)
                 {
                     await Task.Delay(new TimeSpan(days: 1, 0, 0, 0), stoppingToken);
 
@@ -46,7 +55,7 @@ namespace GitHubWorkerService
                     });
                 }
 
-                using (FileStream fs = File.Create(_fileOptions.Path, 1024))
+                using (FileStream fs = File.Create(path, 1024))
                 {
                     byte[] info = new UTF8Encoding(true).GetBytes(string.Join(Environment.NewLine, languages.OrderByDescending(x => x.Value).Select(x => $"{x.Key} - {x.Value}")));
                     await fs.WriteAsync(info, stoppingToken);
