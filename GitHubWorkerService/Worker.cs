@@ -6,10 +6,6 @@ namespace GitHubWorkerService
 {
     public class Worker(ILogger<Worker> logger, IOptions<GitHubOptions> gitHubOptions, IOptions<FileOptions> fileOptions) : BackgroundService
     {
-        private readonly ILogger<Worker> _logger = logger;
-        private readonly GitHubOptions _gitHubOptions = gitHubOptions.Value;
-        private readonly FileOptions _fileOptions = fileOptions.Value;
-
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
             try
@@ -23,7 +19,7 @@ namespace GitHubWorkerService
                         _ = Directory.CreateDirectory(path);
                     }
 
-                    path = Path.Combine(path, _fileOptions.FileName);
+                    path = Path.Combine(path, fileOptions.Value.FileName);
 
                     if (File.Exists(path) && File.GetCreationTime(path).Date == DateTime.Now.Date)
                     {
@@ -32,13 +28,13 @@ namespace GitHubWorkerService
                         return;
                     }
 
-                    if (_logger.IsEnabled(LogLevel.Information))
+                    if (logger.IsEnabled(LogLevel.Information))
                     {
-                        _logger.LogInformation("Worker running at: {time}", DateTimeOffset.Now);
+                        logger.LogInformation("Worker running at: {time}", DateTimeOffset.Now);
                     }
 
-                    GitHubClient github = new(new ProductHeaderValue(_gitHubOptions.Login)) { Credentials = new Credentials(_gitHubOptions.AccessToken) };
-                    User user = await github.User.Get(_gitHubOptions.Login);
+                    GitHubClient github = new(new ProductHeaderValue(gitHubOptions.Value.Login)) { Credentials = new Credentials(gitHubOptions.Value.AccessToken) };
+                    User user = await github.User.Get(gitHubOptions.Value.Login);
                     Console.WriteLine(user.Followers + " folks love me!");
                     Dictionary<string, long> languages = [];
 
