@@ -1,5 +1,6 @@
 using Microsoft.Extensions.Options;
 using Octokit;
+using System.Reflection;
 using System.Text;
 
 namespace GitHubWorkerService
@@ -12,7 +13,7 @@ namespace GitHubWorkerService
             {
                 while (!stoppingToken.IsCancellationRequested)
                 {
-                    string path = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), "GitHubWorkerService");
+                    string path = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), Assembly.GetEntryAssembly()!.GetName().Name!);
 
                     if (!Directory.Exists(path))
                     {
